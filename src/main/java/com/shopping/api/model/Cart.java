@@ -1,11 +1,11 @@
 package com.shopping.api.model;
 
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class Cart {
 
     @Size(max = 255)
