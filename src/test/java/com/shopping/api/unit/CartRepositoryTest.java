@@ -1,6 +1,8 @@
 package com.shopping.api.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -33,7 +35,16 @@ public class CartRepositoryTest {
         cartRepository.create(cart);
     }
 
-    // TODO: test que el repo crea un ID al cart
+    @Test
+    void shouldAddAnIdWhenCartCreatedInRepository() {
+        var cart = CartStubBuilder.builder().build();
+        var cartWithId = cartRepository.create(cart);
+
+        assertEquals(cart.getProducts(), cartWithId.getProducts());
+        assertNull(cart.getId());
+        assertNotNull(cartWithId.getId());
+    }
+
     @Test
     void shouldCreateAndGetSame() {
         var cart = cartRepository.create(CartStubBuilder.builder().build());
