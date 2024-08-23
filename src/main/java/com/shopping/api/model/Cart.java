@@ -1,6 +1,7 @@
 package com.shopping.api.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ public class Cart {
 
     private UUID id;
 
+    // TODO: is this thread-safe
     @NonNull
     @Default
     List<Product> products = new ArrayList<>();
@@ -29,4 +31,7 @@ public class Cart {
         this(id, List.copyOf(cart.products));
     }
 
+    public List<Product> getProducts() {
+        return Collections.unmodifiableList(products);
+    }
 }
