@@ -8,7 +8,7 @@ public abstract class InMemoryRepository<K, E> {
 
     Map<K, E> elements = new HashMap<>();
 
-    public void create(K key, E element) {
+    protected void put(K key, E element) {
         elements.put(key, element);
     }
 

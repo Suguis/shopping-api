@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.shopping.api.repository.CartRepository;
 import com.shopping.api.stub.CartStubBuilder;
 
+// TODO: add test for update
+
 @SpringBootTest
 public class CartRepositoryTest {
 
