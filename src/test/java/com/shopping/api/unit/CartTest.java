@@ -3,6 +3,7 @@ package com.shopping.api.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
@@ -14,11 +15,17 @@ import com.shopping.api.stub.CartStubBuilder;
 public class CartTest {
 
     @Test
-    void idConstructorGeneratesSameCartWithId() {
+    void idConstructorShouldGenerateSameCartWithId() {
         var cart = CartStubBuilder.builder().build();
         var copy = new Cart(UUID.randomUUID(), cart);
         assertEquals(cart.getProducts(), copy.getProducts());
         assertNull(cart.getId());
         assertNotNull(copy.getId());
+    }
+
+    @Test
+    void productListShouldBeImmutable() {
+        var cart = CartStubBuilder.builder().build();
+        assertThrows(UnsupportedOperationException.class, () -> cart.getProducts().clear());
     }
 }
