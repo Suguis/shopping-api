@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,12 @@ public class CartControllerTest {
                 .body("id", equalTo(cart.getId().toString()))
                 .body("products", isA(List.class))
                 .body("products", hasSize(0));
+    }
+
+    @Test
+    void shouldGetNotFoundIfCartDoesNotExist() {
+        given().get("/cart/" + UUID.randomUUID()).then().assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(equalTo(""));
     }
 }
