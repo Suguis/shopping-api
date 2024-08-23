@@ -24,4 +24,8 @@ public class CartService {
         return cartRepository.getByKey(id);
     }
 
+    public Optional<Cart> delete(UUID id) {
+        return cartRepository.deleteByKey(id);
+    }
+
 }

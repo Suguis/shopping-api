@@ -16,6 +16,10 @@ public abstract class InMemoryRepository<K, E> {
         return Optional.ofNullable(elements.get(key));
     }
 
+    public Optional<E> deleteByKey(K key) {
+        return Optional.ofNullable(elements.remove(key));
+    }
+
     public Map<K, E> deleteAll() {
         var deleted = elements;
         elements = new HashMap<>();

@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,9 +47,28 @@ public class CartControllerTest {
     }
 
     @Test
-    void shouldGetNotFoundIfCartDoesNotExist() {
+    void shouldReceiveNotFoundOnGetWhenNonExistentCart() {
         given().get("/api/carts/" + UUID.randomUUID()).then().assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(equalTo(""));
     }
+
+    @Test
+    void shouldDeleteExistingCart() {
+        var cart = cartService.create();
+
+        given().delete("/api/carts/" + cart.getId()).then().assertThat()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .body(equalTo(""));
+
+        assertTrue(cartService.get(cart.getId()).isEmpty());
+    }
+
+    @Test
+    void shouldReceiveNotFoundOnDeleteWhenNonExistentCart() {
+        given().delete("/api/carts/" + UUID.randomUUID()).then().assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body(equalTo(""));
+    }
+
 }

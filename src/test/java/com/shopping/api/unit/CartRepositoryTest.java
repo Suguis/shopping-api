@@ -3,6 +3,7 @@ package com.shopping.api.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -86,5 +87,15 @@ public class CartRepositoryTest {
         var retrieved = cartRepository.getByKey(cart.getId());
 
         assertEquals(Optional.empty(), retrieved);
+    }
+
+    @Test
+    void shouldDelete() {
+        var cart = cartRepository.create(CartStubBuilder.builder().build());
+
+        var deletedCart = cartRepository.deleteByKey(cart.getId()).orElseThrow();
+
+        assertEquals(cart, deletedCart);
+        assertTrue(cartRepository.getByKey(cart.getId()).isEmpty());
     }
 }
