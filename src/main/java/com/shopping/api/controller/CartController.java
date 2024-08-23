@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shopping.api.model.Cart;
 import com.shopping.api.service.CartService;
 
-// TODO: Add /api as basepath
-
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 public class CartController {
 
     @Autowired

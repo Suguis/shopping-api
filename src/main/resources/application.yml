@@ -11,3 +11,6 @@ spring:
       lifecycle-management: start-only
 springdoc:
   pathsToMatch: /
+server:
+  servlet:
+    context-path: /api

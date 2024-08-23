@@ -26,7 +26,7 @@ public class CartControllerTest {
 
     @Test
     void shouldCreate() {
-        given().post("/cart").then().assertThat()
+        given().post("/api/carts").then().assertThat()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", not(nullValue()))
                 .body("products", isA(List.class))
@@ -37,7 +37,7 @@ public class CartControllerTest {
     void shouldGet() {
         var cart = cartService.create();
 
-        given().get("/cart/" + cart.getId()).then().assertThat()
+        given().get("/api/carts/" + cart.getId()).then().assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .contentType("application/json")
                 .body("id", equalTo(cart.getId().toString()))
@@ -47,7 +47,7 @@ public class CartControllerTest {
 
     @Test
     void shouldGetNotFoundIfCartDoesNotExist() {
-        given().get("/cart/" + UUID.randomUUID()).then().assertThat()
+        given().get("/api/carts/" + UUID.randomUUID()).then().assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(equalTo(""));
     }
