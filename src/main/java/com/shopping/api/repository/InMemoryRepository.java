@@ -3,12 +3,13 @@ package com.shopping.api.repository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class InMemoryRepository<K, E> {
 
-    Map<K, E> elements = new HashMap<>();
+    Map<K, E> elements = new ConcurrentHashMap<>();
 
-    protected void put(K key, E element) {
+    public void put(K key, E element) {
         elements.put(key, element);
     }
 

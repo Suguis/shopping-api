@@ -38,14 +38,14 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("id doesn't correspond to any cart"));
     }
 
-    public Cart addProduct(UUID cartId, Product product) {
+    public synchronized Cart addProduct(UUID cartId, Product product) {
         var cart = cartRepository.getByKey(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("id doesn't correspond to any cart"));
         if (isProductAlreadyInTheCart(cartId, product)) {
             throw new IllegalArgumentException("there is already a product with the same id in the cart");
         }
 
-        var updatedCart = new Cart(cart.getId(),
+        var updatedCart = new Cart(cartId,
                 Stream.concat(cart.getProducts().stream(), Stream.of(product))
                         .collect(Collectors.toList()));
 
