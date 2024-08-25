@@ -1,8 +1,6 @@
 package com.shopping.api.config;
 
 import java.time.Duration;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +15,5 @@ public class AppConfig {
     @Bean
     public Duration cartDeletionTime() {
         return cartDeletionTime;
-    }
-
-    @Bean
-    public ScheduledExecutorService cartDeletionExecutor() {
-        return new ScheduledThreadPoolExecutor(1);
     }
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,21 +30,26 @@ public class CartService {
     @Autowired
     private Duration cartDeletionTime;
 
-    @Autowired
-    private ScheduledExecutorService cartDeletionExecutor;
+    private ScheduledExecutorService cartDeletionExecutor = new ScheduledThreadPoolExecutor(1);
 
     private Map<UUID, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
 
     public Cart create() {
         var cart = cartRepository.create(Cart.builder().build());
+        scheduleDeletion(cart.getId().get());
         return cart;
     }
 
     public Optional<Cart> get(UUID id) {
+        scheduleDeletion(id);
         return cartRepository.getByKey(id);
     }
 
     public Optional<Cart> delete(UUID id) {
+        var scheduledTask = scheduledTasks.remove(id);
+        if (scheduledTask != null) {
+            scheduledTask.cancel(false);
+        }
         return cartRepository.deleteByKey(id);
     }
 
@@ -64,6 +70,8 @@ public class CartService {
                         .collect(Collectors.toList()));
 
         cartRepository.update(updatedCart);
+
+        scheduleDeletion(cartId);
 
         return updatedCart;
     }

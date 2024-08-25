@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,11 +28,13 @@ import com.shopping.api.repository.CartRepository;
 import com.shopping.api.service.CartService;
 import com.shopping.api.stub.ProductStubBuilder;
 
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.annotation.PostConstruct;
 
 // TODO: think if names of tests are okay
 
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CartControllerTest {
 
     @Autowired
@@ -41,6 +44,14 @@ public class CartControllerTest {
     private CartRepository cartRepository;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @LocalServerPort
+    private Integer port;
+
+    @PostConstruct
+    void setUpPort() {
+        RestAssured.port = port;
+    }
 
     @BeforeEach
     void clearDatabase() {
@@ -142,6 +153,18 @@ public class CartControllerTest {
 
     @Test
     void shouldReceiveConflictWhenProductAlreadyExists() {
+        var cartId = cartService.create().getId().get();
+        var repeatedProduct = ProductStubBuilder.builder().id(1L).build();
+
+        cartService.addProduct(cartId, ProductStubBuilder.builder().id(1L).build());
+
+        given().contentType(ContentType.JSON).body(repeatedProduct).when().post("/api/carts/" + cartId + "/products")
+                .then().assertThat().statusCode(HttpStatus.CONFLICT.value())
+                .body(emptyString());
+    }
+
+    @Test
+    void shouldDeleteAfterCartDeletionTime() {
         var cartId = cartService.create().getId().get();
         var repeatedProduct = ProductStubBuilder.builder().id(1L).build();
 
