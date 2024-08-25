@@ -1,7 +1,13 @@
 package com.shopping.api.service;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +25,14 @@ public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    private Duration cartDeletionTime;
+
+    @Autowired
+    private ScheduledExecutorService cartDeletionExecutor;
+
+    private Map<UUID, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
 
     public Cart create() {
         var cart = cartRepository.create(Cart.builder().build());
@@ -52,5 +66,15 @@ public class CartService {
         cartRepository.update(updatedCart);
 
         return updatedCart;
+    }
+
+    public void scheduleDeletion(UUID id) {
+        var oldTask = scheduledTasks.get(id);
+        if (oldTask != null) {
+            oldTask.cancel(false);
+        }
+        scheduledTasks.put(id,
+                cartDeletionExecutor.schedule(() -> cartRepository.deleteByKey(id), cartDeletionTime.toMillis(),
+                        TimeUnit.MILLISECONDS));
     }
 }

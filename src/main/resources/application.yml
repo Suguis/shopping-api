@@ -14,3 +14,6 @@ springdoc:
 server:
   servlet:
     context-path: /api
+cart:
+  deletion:
+    time: 10m
