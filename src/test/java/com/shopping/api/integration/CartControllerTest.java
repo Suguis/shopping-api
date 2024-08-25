@@ -29,6 +29,8 @@ import com.shopping.api.stub.ProductStubBuilder;
 
 import io.restassured.http.ContentType;
 
+// TODO: think if names of tests are okay
+
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class CartControllerTest {
 
@@ -58,10 +60,10 @@ public class CartControllerTest {
     void shouldGet() {
         var cart = cartService.create();
 
-        given().get("/api/carts/" + cart.getId()).then().assertThat()
+        given().get("/api/carts/" + cart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
-                .body("id", equalTo(cart.getId().toString()))
+                .body("id", equalTo(cart.getId().get().toString()))
                 .body("products", isA(List.class))
                 .body("products", hasSize(0));
     }
@@ -77,11 +79,11 @@ public class CartControllerTest {
     void shouldDeleteExistingCart() {
         var cart = cartService.create();
 
-        given().delete("/api/carts/" + cart.getId()).then().assertThat()
+        given().delete("/api/carts/" + cart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .body(emptyString());
 
-        assertTrue(cartService.get(cart.getId()).isEmpty());
+        assertTrue(cartService.get(cart.getId().get()).isEmpty());
     }
 
     @Test
@@ -96,11 +98,12 @@ public class CartControllerTest {
         var cart = cartService.create();
         var product = ProductStubBuilder.builder().build();
 
-        given().contentType(ContentType.JSON).body(product).when().post("/api/carts/" + cart.getId() + "/products")
+        given().contentType(ContentType.JSON).body(product).when()
+                .post("/api/carts/" + cart.getId().get() + "/products")
                 .then().assertThat().statusCode(HttpStatus.CREATED.value())
                 .body(emptyString());
 
-        assertTrue(cartService.get(cart.getId()).get().getProducts().contains(product));
+        assertTrue(cartService.get(cart.getId().get()).get().getProducts().contains(product));
     }
 
     @Test
@@ -109,9 +112,9 @@ public class CartControllerTest {
         var product = ProductStubBuilder.builder().build();
         var productMap = mapper.readValue(mapper.writeValueAsString(product), Map.class);
 
-        cartService.addProduct(previousCart.getId(), product);
+        cartService.addProduct(previousCart.getId().get(), product);
 
-        given().get("/api/carts/" + previousCart.getId()).then().assertThat()
+        given().get("/api/carts/" + previousCart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
                 .body("products", contains(productMap))
@@ -132,13 +135,14 @@ public class CartControllerTest {
         var cart = cartService.create();
         var product = ProductStubBuilder.builder().amount(-1).build();
 
-        given().contentType(ContentType.JSON).body(product).when().post("/api/carts/" + cart.getId() + "/products")
+        given().contentType(ContentType.JSON).body(product).when()
+                .post("/api/carts/" + cart.getId().get() + "/products")
                 .then().assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
     void shouldReceiveConflictWhenProductAlreadyExists() {
-        var cartId = cartService.create().getId();
+        var cartId = cartService.create().getId().get();
         var repeatedProduct = ProductStubBuilder.builder().id(1L).build();
 
         cartService.addProduct(cartId, ProductStubBuilder.builder().id(1L).build());

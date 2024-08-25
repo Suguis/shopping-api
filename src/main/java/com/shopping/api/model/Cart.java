@@ -3,6 +3,7 @@ package com.shopping.api.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +23,6 @@ public class Cart {
 
     private UUID id;
 
-    // TODO: is this thread-safe
     @NonNull
     @Default
     List<Product> products = new ArrayList<>();
@@ -31,7 +31,12 @@ public class Cart {
         this(id, List.copyOf(cart.products));
     }
 
+    // TODO: addProduct that creates new Cart
     public List<Product> getProducts() {
         return Collections.unmodifiableList(products);
+    }
+
+    public Optional<UUID> getId() {
+        return Optional.ofNullable(id);
     }
 }

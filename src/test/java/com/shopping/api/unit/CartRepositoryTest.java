@@ -1,23 +1,26 @@
 package com.shopping.api.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.shopping.api.model.Cart;
 import com.shopping.api.repository.CartRepository;
 import com.shopping.api.stub.CartStubBuilder;
+import com.shopping.api.stub.ProductStubBuilder;
 
 // TODO: add test for update
 
@@ -44,14 +47,14 @@ public class CartRepositoryTest {
         var cartWithId = cartRepository.create(cart);
 
         assertEquals(cart.getProducts(), cartWithId.getProducts());
-        assertNull(cart.getId());
-        assertNotNull(cartWithId.getId());
+        assertTrue(cart.getId().isEmpty());
+        assertTrue(cartWithId.getId().isPresent());
     }
 
     @Test
     void shouldCreateAndGetSame() {
         var cart = cartRepository.create(CartStubBuilder.builder().build());
-        var retrieved = cartRepository.getByKey(cart.getId()).orElseThrow();
+        var retrieved = cartRepository.getByKey(cart.getId().get()).orElseThrow();
 
         assertEquals(cart, retrieved);
     }
@@ -80,13 +83,11 @@ public class CartRepositoryTest {
 
     @Test
     void shouldNotGetAfterDeletingAll() {
-        var cart = CartStubBuilder.builder().build();
-
-        cartRepository.create(cart);
+        var cart = cartRepository.create(CartStubBuilder.builder().build());
 
         cartRepository.deleteAll();
 
-        var retrieved = cartRepository.getByKey(cart.getId());
+        var retrieved = cartRepository.getByKey(cart.getId().get());
 
         assertEquals(Optional.empty(), retrieved);
     }
@@ -95,9 +96,29 @@ public class CartRepositoryTest {
     void shouldDelete() {
         var cart = cartRepository.create(CartStubBuilder.builder().build());
 
-        var deletedCart = cartRepository.deleteByKey(cart.getId()).orElseThrow();
+        var deletedCart = cartRepository.deleteByKey(cart.getId().get()).orElseThrow();
 
         assertEquals(cart, deletedCart);
-        assertTrue(cartRepository.getByKey(cart.getId()).isEmpty());
+        assertTrue(cartRepository.getByKey(cart.getId().get()).isEmpty());
+    }
+
+    @Test
+    void shouldUpdate() {
+        var cart = cartRepository.create(CartStubBuilder.builder().build());
+        var product = ProductStubBuilder.builder().build();
+        var updatedCart = new Cart(cart.getId().get(), Stream.concat(cart.getProducts().stream(), Stream.of(product))
+                .collect(Collectors.toList()));
+
+        cartRepository.update(updatedCart);
+
+        var retrieved = cartRepository.getByKey(cart.getId().get()).get();
+        assertEquals(retrieved, updatedCart);
+    }
+
+    @Test
+    void shouldThrowWhenUpdatingCartWithoutId() {
+        var cart = CartStubBuilder.builder().build();
+
+        assertThrows(NoSuchElementException.class, () -> cartRepository.update(cart));
     }
 }

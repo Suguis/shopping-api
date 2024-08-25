@@ -1,9 +1,6 @@
 package com.shopping.api.unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.UUID;
 
@@ -19,8 +16,8 @@ public class CartTest {
         var cart = CartStubBuilder.builder().build();
         var copy = new Cart(UUID.randomUUID(), cart);
         assertEquals(cart.getProducts(), copy.getProducts());
-        assertNull(cart.getId());
-        assertNotNull(copy.getId());
+        assertTrue(cart.getId().isEmpty());
+        assertTrue(copy.getId().isPresent());
     }
 
     @Test

@@ -10,11 +10,13 @@ import com.shopping.api.model.Cart;
 public class CartRepository extends InMemoryRepository<UUID, Cart> {
     public Cart create(Cart cart) {
         var cartWithId = new Cart(UUID.randomUUID(), cart);
-        put(cartWithId.getId(), cartWithId);
+        put(cartWithId.getId().get(), cartWithId);
         return cartWithId;
     }
 
+    // TODO: test update
     public void update(Cart cart) {
-        put(cart.getId(), cart);
+        var id = cart.getId().orElseThrow();
+        put(id, cart);
     }
 }
