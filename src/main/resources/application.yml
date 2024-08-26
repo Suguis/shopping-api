@@ -11,3 +11,5 @@ cart:
 spring:
   banner:
     location: classpath:logo.txt
+server:
+  port: ${PORT:8080}
