@@ -1,10 +1,10 @@
 package com.shopping.api.service;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,7 +28,7 @@ public class CartService {
 
     private ScheduledExecutorService cartDeletionExecutor = new ScheduledThreadPoolExecutor(1);
 
-    private Map<UUID, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
+    private Map<UUID, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     public Cart create() {
         var cart = cartRepository.create(Cart.builder().build());
