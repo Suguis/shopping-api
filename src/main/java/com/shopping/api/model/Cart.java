@@ -31,9 +31,14 @@ public class Cart {
         this(id, List.copyOf(cart.products));
     }
 
-    // TODO: addProduct that creates new Cart
     public List<Product> getProducts() {
         return Collections.unmodifiableList(products);
+    }
+
+    public Cart addProduct(Product product) {
+        var newProducts = new ArrayList<>(products);
+        newProducts.add(product);
+        return new Cart(id, newProducts);
     }
 
     public Optional<UUID> getId() {
