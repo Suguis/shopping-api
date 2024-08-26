@@ -14,7 +14,6 @@ public class CartRepository extends InMemoryRepository<UUID, Cart> {
         return cartWithId;
     }
 
-    // TODO: test update
     public void update(Cart cart) {
         var id = cart.getId().orElseThrow();
         put(id, cart);

@@ -32,8 +32,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.annotation.PostConstruct;
 
-// TODO: think if names of tests are okay
-
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CartControllerTest {
 

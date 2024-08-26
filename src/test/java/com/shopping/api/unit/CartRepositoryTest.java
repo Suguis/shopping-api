@@ -10,19 +10,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.shopping.api.model.Cart;
 import com.shopping.api.repository.CartRepository;
 import com.shopping.api.stub.CartStubBuilder;
 import com.shopping.api.stub.ProductStubBuilder;
-
-// TODO: add test for update
 
 @SpringBootTest
 public class CartRepositoryTest {
@@ -106,8 +102,7 @@ public class CartRepositoryTest {
     void shouldUpdate() {
         var cart = cartRepository.create(CartStubBuilder.builder().build());
         var product = ProductStubBuilder.builder().build();
-        var updatedCart = new Cart(cart.getId().get(), Stream.concat(cart.getProducts().stream(), Stream.of(product))
-                .collect(Collectors.toList()));
+        var updatedCart = cart.addProduct(product);
 
         cartRepository.update(updatedCart);
 
