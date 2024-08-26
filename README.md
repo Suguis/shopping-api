@@ -62,7 +62,7 @@ You can run the application via Maven Wrapper or via Docker. There are two envir
 ### Maven Wrapper
 
 ```sh
-./mvnw spring-boot:run  # Run the application
+./mvnw clean spring-boot:run  # Run the application
 
 # If you want to add a custom deletion time, ie. 10 seconds:
 CART_DELETION_TIME='10s' ./mvnw spring-boot:test-run
