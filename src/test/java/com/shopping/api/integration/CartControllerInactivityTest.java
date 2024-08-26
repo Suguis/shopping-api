@@ -63,7 +63,7 @@ public class CartControllerInactivityTest {
         var awaitTime = appConfig.cartDeletionTime().multipliedBy(2);
         var pollingTime = appConfig.cartDeletionTime().dividedBy(4);
 
-        await().during(awaitTime).atMost(awaitTime.plusSeconds(5))
+        await().during(awaitTime).atMost(awaitTime.plusSeconds(2))
                 .pollInterval(pollingTime)
                 .untilAsserted(() -> {
                     var product = ProductStubBuilder.builder().build();

@@ -57,13 +57,14 @@ public class CartServiceTest {
         assertTrue(cartService.get(cart1.getId().get()).isPresent());
         assertTrue(cartService.get(cart2.getId().get()).isPresent());
 
-        var awaitTime = cartDeletionTime.dividedBy(2);
-
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(awaitTime.toMillis());
-            cartService.get(cart1.getId().get());
-            cartService.get(cart2.getId().get());
-        }
+        var pollingTime = cartDeletionTime.dividedBy(2);
+        var awaitTime = cartDeletionTime.multipliedBy(3);
+        await().during(awaitTime).atMost(awaitTime.plusSeconds(2))
+                .pollInterval(pollingTime)
+                .untilAsserted(() -> {
+                    assertTrue(cartService.get(cart1.getId().get()).isPresent());
+                    assertTrue(cartService.get(cart2.getId().get()).isPresent());
+                });
 
         assertTrue(cartService.get(cart1.getId().get()).isPresent());
         assertTrue(cartService.get(cart2.getId().get()).isPresent());
