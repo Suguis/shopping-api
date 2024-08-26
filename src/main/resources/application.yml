@@ -5,12 +5,9 @@ error:
     full-stacktrace-http-statuses: 5xx
     log-levels:
       5xx: ERROR
-server:
-  servlet:
-    context-path: /api
 cart:
   deletion:
-    time: 10m
+    time: ${CART_DELETION_TIME:10m}
 spring:
   banner:
     location: classpath:logo.txt

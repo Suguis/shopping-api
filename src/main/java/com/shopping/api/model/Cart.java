@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -21,10 +22,12 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Cart {
 
+    @Schema(description = "Identifier of the cart", required = true)
     private UUID id;
 
     @NonNull
     @Default
+    @Schema(description = "List of products that the cart contains", required = true)
     List<Product> products = new ArrayList<>();
 
     public Cart(UUID id, Cart cart) {

@@ -43,20 +43,20 @@ public class CartControllerInactivityTest {
 
     @Test
     void shouldDeleteCartAfterInactivityPeriod() throws InterruptedException {
-        var id = given().post("/api/carts").then().assertThat()
+        var id = given().post("/carts").then().assertThat()
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().path("id");
 
         var awaitTime = appConfig.cartDeletionTime().toMillis() * 2;
         Thread.sleep(awaitTime);
 
-        given().get("/api/carts/" + id).then().assertThat()
+        given().get("/carts/" + id).then().assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
     void shouldNotDeleteCartIfThereIsActivity() throws InterruptedException {
-        var id = given().post("/api/carts").then().assertThat()
+        var id = given().post("/carts").then().assertThat()
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().path("id");
 
@@ -67,16 +67,16 @@ public class CartControllerInactivityTest {
                 .pollInterval(pollingTime)
                 .untilAsserted(() -> {
                     var product = ProductStubBuilder.builder().build();
-                    given().get("/api/carts/" + id).then().assertThat()
+                    given().get("/carts/" + id).then().assertThat()
                             .statusCode(HttpStatus.OK.value());
                     given().contentType(ContentType.JSON).body(product).when()
-                            .post("/api/carts/" + id + "/products")
+                            .post("/carts/" + id + "/products")
                             .then()
                             .assertThat()
                             .statusCode(HttpStatus.CREATED.value());
                 });
 
-        given().get("/api/carts/" + id).then().assertThat()
+        given().get("/carts/" + id).then().assertThat()
                 .statusCode(HttpStatus.OK.value());
     }
 }

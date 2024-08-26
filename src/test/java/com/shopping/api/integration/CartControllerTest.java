@@ -58,7 +58,7 @@ public class CartControllerTest {
 
     @Test
     void shouldCreate() {
-        given().post("/api/carts").then().assertThat()
+        given().post("/carts").then().assertThat()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", not(nullValue()))
                 .body("products", isA(List.class))
@@ -69,7 +69,7 @@ public class CartControllerTest {
     void shouldGet() {
         var cart = cartService.create();
 
-        given().get("/api/carts/" + cart.getId().get()).then().assertThat()
+        given().get("/carts/" + cart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
                 .body("id", equalTo(cart.getId().get().toString()))
@@ -79,7 +79,7 @@ public class CartControllerTest {
 
     @Test
     void shouldReceiveNotFoundOnGetWhenNonExistentCart() {
-        given().get("/api/carts/" + UUID.randomUUID()).then().assertThat()
+        given().get("/carts/" + UUID.randomUUID()).then().assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(emptyString());
     }
@@ -88,7 +88,7 @@ public class CartControllerTest {
     void shouldDeleteExistingCart() {
         var cart = cartService.create();
 
-        given().delete("/api/carts/" + cart.getId().get()).then().assertThat()
+        given().delete("/carts/" + cart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .body(emptyString());
 
@@ -97,7 +97,7 @@ public class CartControllerTest {
 
     @Test
     void shouldReceiveNotFoundOnDeleteWhenNonExistentCart() {
-        given().delete("/api/carts/" + UUID.randomUUID()).then().assertThat()
+        given().delete("/carts/" + UUID.randomUUID()).then().assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(emptyString());
     }
@@ -108,7 +108,7 @@ public class CartControllerTest {
         var product = ProductStubBuilder.builder().build();
 
         given().contentType(ContentType.JSON).body(product).when()
-                .post("/api/carts/" + cart.getId().get() + "/products")
+                .post("/carts/" + cart.getId().get() + "/products")
                 .then().assertThat().statusCode(HttpStatus.CREATED.value())
                 .body(emptyString());
 
@@ -123,7 +123,7 @@ public class CartControllerTest {
 
         cartService.addProduct(previousCart.getId().get(), product);
 
-        given().get("/api/carts/" + previousCart.getId().get()).then().assertThat()
+        given().get("/carts/" + previousCart.getId().get()).then().assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
                 .body("products", contains(productMap))
@@ -134,7 +134,7 @@ public class CartControllerTest {
     void shouldReceiveNotFoundWhenTryingToAddProductOnNonExistentCart() {
         var product = ProductStubBuilder.builder().build();
 
-        given().contentType(ContentType.JSON).body(product).when().post("/api/carts/" + UUID.randomUUID() + "/products")
+        given().contentType(ContentType.JSON).body(product).when().post("/carts/" + UUID.randomUUID() + "/products")
                 .then().assertThat().statusCode(HttpStatus.NOT_FOUND.value())
                 .body(emptyString());
     }
@@ -145,7 +145,7 @@ public class CartControllerTest {
         var product = ProductStubBuilder.builder().amount(-1).build();
 
         given().contentType(ContentType.JSON).body(product).when()
-                .post("/api/carts/" + cart.getId().get() + "/products")
+                .post("/carts/" + cart.getId().get() + "/products")
                 .then().assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -156,7 +156,7 @@ public class CartControllerTest {
 
         cartService.addProduct(cartId, ProductStubBuilder.builder().id(1L).build());
 
-        given().contentType(ContentType.JSON).body(repeatedProduct).when().post("/api/carts/" + cartId + "/products")
+        given().contentType(ContentType.JSON).body(repeatedProduct).when().post("/carts/" + cartId + "/products")
                 .then().assertThat().statusCode(HttpStatus.CONFLICT.value())
                 .body(emptyString());
     }
@@ -168,7 +168,7 @@ public class CartControllerTest {
 
         cartService.addProduct(cartId, ProductStubBuilder.builder().id(1L).build());
 
-        given().contentType(ContentType.JSON).body(repeatedProduct).when().post("/api/carts/" + cartId + "/products")
+        given().contentType(ContentType.JSON).body(repeatedProduct).when().post("/carts/" + cartId + "/products")
                 .then().assertThat().statusCode(HttpStatus.CONFLICT.value())
                 .body(emptyString());
     }

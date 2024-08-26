@@ -18,6 +18,11 @@ import com.shopping.api.model.Cart;
 import com.shopping.api.model.Product;
 import com.shopping.api.service.CartService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
@@ -29,25 +34,50 @@ public class CartController {
 
     @PostMapping("")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(summary = "Creates an empty cart, with no products")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cart created", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Cart.class))
+            })
+    })
     public Cart createCart() {
         var cart = cartService.create();
         return cart;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cart> createCart(@PathVariable UUID id) {
+    @Operation(summary = "Gets a cart given its id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cart found", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Cart.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cart not found", content = @Content)
+    })
+    public ResponseEntity<Cart> getCart(@PathVariable UUID id) {
         return cartService.get(id).map(cart -> ResponseEntity.ok(cart))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deletes a cart given its id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Cart successfully deleted", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Cart not found", content = @Content)
+    })
     public ResponseEntity<Object> deleteCart(@PathVariable UUID id) {
         return cartService.delete(id).map(cart -> ResponseEntity.status(HttpStatus.NO_CONTENT).build())
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/{id}/products")
-    public ResponseEntity<Object> addProduct(@PathVariable UUID id, @RequestBody @Valid Product product) {
+    @Operation(summary = "Adds a product to a cart given by its id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "The product was successfully created in the cart", content = @Content),
+            @ApiResponse(responseCode = "400", description = "The product is malformed", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Cart not found", content = @Content),
+            @ApiResponse(responseCode = "409", description = "A product with the same id already exists in the cart", content = @Content),
+    })
+    public ResponseEntity<Object> addProduct(@PathVariable UUID id, @Valid @RequestBody Product product) {
         return cartService.get(id).map(cart -> {
             if (cartService.isProductAlreadyInTheCart(id, product)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
