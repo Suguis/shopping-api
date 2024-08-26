@@ -9,8 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Service;
 import com.shopping.api.model.Cart;
 import com.shopping.api.model.Product;
 import com.shopping.api.repository.CartRepository;
-
-// TODO: test this service
 
 @Service
 public class CartService {
@@ -65,9 +61,7 @@ public class CartService {
             throw new IllegalArgumentException("there is already a product with the same id in the cart");
         }
 
-        var updatedCart = new Cart(cartId,
-                Stream.concat(cart.getProducts().stream(), Stream.of(product))
-                        .collect(Collectors.toList()));
+        var updatedCart = cart.addProduct(product);
 
         cartRepository.update(updatedCart);
 

@@ -1,9 +1,11 @@
 package com.shopping.api.unit;
 
-import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Duration;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.shopping.api.repository.CartRepository;
 import com.shopping.api.service.CartService;
+import com.shopping.api.stub.ProductStubBuilder;
 
-@SpringBootTest(properties = "cart.deletion.time=300")
+@SpringBootTest
 public class CartServiceTest {
 
     @Autowired
@@ -22,52 +25,44 @@ public class CartServiceTest {
     @Autowired
     private CartRepository cartRepository;
 
-    @Autowired
-    private Duration cartDeletionTime;
-
     @BeforeEach
     void clearDatabase() {
         cartRepository.deleteAll();
     }
 
     @Test
-    void shouldDeleteCartsAfterDeletionTime() throws InterruptedException {
+    void shouldCreateAndGetCarts() {
         var cart1 = cartService.create();
         var cart2 = cartService.create();
-
-        cartService.scheduleDeletion(cart1.getId().get());
-        cartService.scheduleDeletion(cart2.getId().get());
-        assertTrue(cartService.get(cart1.getId().get()).isPresent());
-        assertTrue(cartService.get(cart2.getId().get()).isPresent());
-
-        var awaitTime = cartDeletionTime.multipliedBy(4);
-        await().atMost(awaitTime).untilAsserted(() -> {
-            assertTrue(cartRepository.getByKey(cart1.getId().get()).isEmpty());
-            assertTrue(cartRepository.getByKey(cart2.getId().get()).isEmpty());
-        });
+        var retrieved1 = cartService.get(cart1.getId().get()).get();
+        var retrieved2 = cartService.get(cart2.getId().get()).get();
+        assertEquals(cart1, retrieved1);
+        assertEquals(cart2, retrieved2);
     }
 
     @Test
-    void shouldNotDeleteCartsIfReescheduled() throws InterruptedException {
+    void shouldAddProductsToCart() {
+        var cart = cartService.create();
+
+        assertTrue(cart.getProducts().isEmpty());
+
+        var products = Stream.generate(() -> ProductStubBuilder.builder().build())
+                .limit(3).collect(Collectors.toSet());
+
+        products.forEach(product -> cartService.addProduct(cart.getId().get(), product));
+
+        var cartWithProducts = cartService.get(cart.getId().get()).get();
+        assertEquals(products, new HashSet<>(cartWithProducts.getProducts()));
+    }
+
+    @Test
+    void shouldDeleteSpecifiedCart() {
         var cart1 = cartService.create();
         var cart2 = cartService.create();
+        cartService.delete(cart1.getId().get());
 
-        cartService.scheduleDeletion(cart1.getId().get());
-        cartService.scheduleDeletion(cart2.getId().get());
-        assertTrue(cartService.get(cart1.getId().get()).isPresent());
-        assertTrue(cartService.get(cart2.getId().get()).isPresent());
-
-        var pollingTime = cartDeletionTime.dividedBy(2);
-        var awaitTime = cartDeletionTime.multipliedBy(3);
-        await().during(awaitTime).atMost(awaitTime.plusSeconds(2))
-                .pollInterval(pollingTime)
-                .untilAsserted(() -> {
-                    assertTrue(cartService.get(cart1.getId().get()).isPresent());
-                    assertTrue(cartService.get(cart2.getId().get()).isPresent());
-                });
-
-        assertTrue(cartService.get(cart1.getId().get()).isPresent());
-        assertTrue(cartService.get(cart2.getId().get()).isPresent());
+        assertTrue(cartService.get(cart1.getId().get()).isEmpty());
+        assertEquals(cart2, cartService.get(cart2.getId().get()).get());
     }
 
 }
