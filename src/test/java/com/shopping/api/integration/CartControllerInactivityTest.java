@@ -19,7 +19,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.annotation.PostConstruct;
 
-@SpringBootTest(properties = "cart.deletion.time=3000", webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(properties = "cart.deletion.time=5000", webEnvironment = WebEnvironment.RANDOM_PORT)
 public class CartControllerInactivityTest {
 
     @Autowired
@@ -47,7 +47,7 @@ public class CartControllerInactivityTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().path("id");
 
-        var awaitTime = appConfig.cartDeletionTime().toMillis() * 2;
+        var awaitTime = appConfig.getCartDeletionTime().toMillis() * 2;
         Thread.sleep(awaitTime);
 
         given().get("/carts/" + id).then().assertThat()
@@ -60,8 +60,8 @@ public class CartControllerInactivityTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().path("id");
 
-        var awaitTime = appConfig.cartDeletionTime().multipliedBy(2);
-        var pollingTime = appConfig.cartDeletionTime().dividedBy(4);
+        var awaitTime = appConfig.getCartDeletionTime().multipliedBy(2);
+        var pollingTime = appConfig.getCartDeletionTime().dividedBy(4);
 
         await().during(awaitTime).atMost(awaitTime.plusSeconds(2))
                 .pollInterval(pollingTime)

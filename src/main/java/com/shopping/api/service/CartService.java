@@ -1,6 +1,5 @@
 package com.shopping.api.service;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.shopping.api.config.AppConfig;
 import com.shopping.api.model.Cart;
 import com.shopping.api.model.Product;
 import com.shopping.api.repository.CartRepository;
@@ -24,7 +24,7 @@ public class CartService {
     private CartRepository cartRepository;
 
     @Autowired
-    private Duration cartDeletionTime;
+    private AppConfig appConfig;
 
     private ScheduledExecutorService cartDeletionExecutor = new ScheduledThreadPoolExecutor(1);
 
@@ -76,7 +76,8 @@ public class CartService {
             oldTask.cancel(false);
         }
         scheduledTasks.put(id,
-                cartDeletionExecutor.schedule(() -> cartRepository.deleteByKey(id), cartDeletionTime.toMillis(),
+                cartDeletionExecutor.schedule(() -> cartRepository.deleteByKey(id),
+                        appConfig.getCartDeletionTime().toMillis(),
                         TimeUnit.MILLISECONDS));
     }
 }

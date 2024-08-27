@@ -3,13 +3,12 @@ package com.shopping.api.unit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Duration;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.shopping.api.config.AppConfig;
 import com.shopping.api.repository.CartRepository;
 import com.shopping.api.service.CartService;
 
@@ -23,7 +22,7 @@ public class CartServiceDeletionTest {
     private CartRepository cartRepository;
 
     @Autowired
-    private Duration cartDeletionTime;
+    private AppConfig appConfig;
 
     @BeforeEach
     void clearDatabase() {
@@ -40,7 +39,7 @@ public class CartServiceDeletionTest {
         assertTrue(cartService.get(cart1.getId().get()).isPresent());
         assertTrue(cartService.get(cart2.getId().get()).isPresent());
 
-        var awaitTime = cartDeletionTime.multipliedBy(4);
+        var awaitTime = appConfig.getCartDeletionTime().multipliedBy(4);
         await().atMost(awaitTime).untilAsserted(() -> {
             assertTrue(cartRepository.getByKey(cart1.getId().get()).isEmpty());
             assertTrue(cartRepository.getByKey(cart2.getId().get()).isEmpty());
@@ -57,8 +56,8 @@ public class CartServiceDeletionTest {
         assertTrue(cartService.get(cart1.getId().get()).isPresent());
         assertTrue(cartService.get(cart2.getId().get()).isPresent());
 
-        var pollingTime = cartDeletionTime.dividedBy(2);
-        var awaitTime = cartDeletionTime.multipliedBy(3);
+        var pollingTime = appConfig.getCartDeletionTime().dividedBy(2);
+        var awaitTime = appConfig.getCartDeletionTime().multipliedBy(3);
         await().during(awaitTime).atMost(awaitTime.plusSeconds(2))
                 .pollInterval(pollingTime)
                 .untilAsserted(() -> {
