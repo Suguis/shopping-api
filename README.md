@@ -1,5 +1,7 @@
 # Shopping API
 
+*NOTE: (This was a technical test for a selection process).*
+
 This API is designed for an imaginary e-commerce application, allowing it to manage shopping carts.
 
 ## Features
